@@ -1,10 +1,12 @@
 const fs = require('fs');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
+const { GraphQLScalarType } = require('graphql');
+const { Kind } = require('graphql/language');
 
 let aboutMessage = "Issue Tracker API v1.0";
 
-const issueDB = [
+const issuesDB = [
     {
       id: 1, status: 'New', owner: 'Ravan', effort: 5,
       created: new Date('2018-08-15'), due: undefined,
@@ -24,6 +26,19 @@ const issueDB = [
     },
   ];
 
+const GraphQLDate = new GraphQLScalarType({
+    name: 'GraphQLDate',
+    description: 'A Date() type is GraphQL as a scalar',
+    serialize(value) {
+        return value.toISOString();
+    },
+    parseValue(value) {
+        return new Date(value);
+    },
+    parseLiteral(ast) {
+        return (ast.kind == Kind.STRING) ? new Date(ast.value) : undefined;
+    },
+});
 
 const resolvers = {
     Query: {
@@ -32,7 +47,9 @@ const resolvers = {
     },
     Mutation: {
         setAboutMessage,
+        issueAdd,
     },
+    GraphQLDate,
 };
 
 function setAboutMessage(_, { message }) {
@@ -40,7 +57,15 @@ function setAboutMessage(_, { message }) {
 }
 
 function issueList() {
-    return issueDB;
+    return issuesDB;
+}
+
+function issueAdd(_, { issue }) {
+    issue.created = new Date();
+    issue.id = issuesDB.length + 1;
+    if (issue.status == undefined) issue.status = 'New';
+    issuesDB.push(issue);
+    return issue;
 }
 
 const server = new ApolloServer({
