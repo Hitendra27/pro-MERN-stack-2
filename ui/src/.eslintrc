@@ -1,7 +1,7 @@
 {
   "extends": "airbnb",
   "env": {
-    "brower": true
+    "browser": true
   },
   "rules": {
     "react/prop-types": "off"

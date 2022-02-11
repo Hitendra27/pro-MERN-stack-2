@@ -1,5 +1,5 @@
 /* eslint "react/react-in-jsx-scope": "off" */
-/* golbals React ReactDom */
+/* golbals React ReactDom PropTypes */
 /* eslint "react/jsx-no-undef": "off" */
 /* eslint "no-alert": "off" */
 
@@ -84,6 +84,10 @@ class IssueAdd extends React.Component {
     );
   }
 }
+
+IssueAdd.propTypes = {
+  createIssue: propTypes.func.isRequired,
+};
 
 async function graphQLFetch(query, variables = {}) {
   try {
