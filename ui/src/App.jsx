@@ -1,3 +1,8 @@
+/* eslint "react/react-in-jsx-scope": "off" */
+/* golbals React ReactDom */
+/* eslint "react/jsx-no-undef": "off" */
+/* eslint "no-alert": "off" */
+
 const dateRegex = new RegExp('^\\d\\d\\d\\d-\\d\\d-\\d\\d');
 
 function jsonDateReviver(key, value) {
@@ -5,57 +10,51 @@ function jsonDateReviver(key, value) {
   return value;
 }
 
+// eslint-disbale-next-line react/prefer-stateless-function
 class IssueFilter extends React.Component {
-   render() {
-     return (
-       <div>This is a placeholder for the issue filter.</div>
-     );
-   }
- }
-
- function IssueRow(props) {
-  const issue = props.issue; 
-    return (
-      <tr>
-        <td>{issue.id}</td>
-        <td>{issue.status}</td>
-        <td>{issue.owner}</td>
-        <td>{issue.created.toDateString()}</td>
-        <td>{issue.effort}</td>
-        <td>{issue.due ? issue.due.toDateString() : ''}</td>
-        <td>{issue.title}</td>         
-      </tr>
-    );
+  render() {
+    return <div>This is a placeholder for the issue filter.</div>;
+  }
 }
 
+function IssueRow({ issue }) {
+  return (
+    <tr>
+      <td>{issue.id}</td>
+      <td>{issue.status}</td>
+      <td>{issue.owner}</td>
+      <td>{issue.created.toDateString()}</td>
+      <td>{issue.effort}</td>
+      <td>{issue.due ? issue.due.toDateString() : ''}</td>
+      <td>{issue.title}</td>
+    </tr>
+  );
+}
 
- function IssueTable(props)  {
-    const issueRows = props.issues.map(issue =>
-      <IssueRow key={issue.id} issue={issue} />
-      );
+function IssueTable({ issue }) {
+  const issueRows = issues.map((issue) => (
+    <IssueRow key={issue.id} issue={issue} />
+  ));
 
-     return (
-       <table className="bordered-table">
-         <thead>
-           <tr>
-             <th>ID</th>
-             <th>Status</th>
-             <th>Owner</th>
-             <th>Created</th>
-             <th>Effort</th>
-             <th>Due Date</th>
-             <th>Title</th>
-           </tr>
-         </thead>
-         <tbody>
-           {issueRows}
-         </tbody>
-       </table>
-     );
- }
- 
+  return (
+    <table className="bordered-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Owner</th>
+          <th>Created</th>
+          <th>Effort</th>
+          <th>Due Date</th>
+          <th>Title</th>
+        </tr>
+      </thead>
+      <tbody>{issueRows}</tbody>
+    </table>
+  );
+}
 
- class IssueAdd extends React.Component {
+class IssueAdd extends React.Component {
   constructor() {
     super();
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -65,63 +64,65 @@ class IssueFilter extends React.Component {
     e.preventDefault();
     const form = document.forms.issueAdd;
     const issue = {
-      owner: form.owner.value, title: form.title.value,
-      due: new Date(new Date().getTime() + 1000*60*60*24*10),
+      owner: form.owner.value,
+      title: form.title.value,
+      due: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 10),
+    };
+    const { createIssue } = this.props;
+    createIssue(issue);
+    form.owner.value = '';
+    form.title.value = '';
+  }
+
+  render() {
+    return (
+      <form name="issueAdd" onSubmit={this.handleSubmit}>
+        <input type="text" name="owner" placeholder="Owner" />
+        <input type="text" name="title" placeholder="Title" />
+        <button type="submit">Add</button>
+      </form>
+    );
+  }
+}
+
+async function graphQLFetch(query, variables = {}) {
+  try {
+    const response = await fetch(window.ENV.UI_API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables }),
+    });
+    const body = await response.text();
+    const result = JSON.parse(body, jsonDateReviver);
+
+    if (result.errors) {
+      const error = result.errors[0];
+      if (error.extensions.code === 'BAD_USER_INPUT') {
+        const details = error.extensions.exception.errors.join('\n');
+        alert(`${error.message}:\n ${details}`);
+      } else {
+        alert(`${error.extensions.code}: ${error.message}`);
+      }
     }
-    this.props.createIssue(issue);
-    form.owner.value = ""; form.title.value = "";
+    return result.data;
+  } catch (e) {
+    alert(`Error in sending data to server: ${e.message}`);
+    return null;
   }
-
-   render() {
-     return (
-       <form name="issueAdd" onSubmit={this.handleSubmit}>
-         <input type="text" name="owner" placeholder="Owner" />
-         <input type="text" name="title" placeholder="Title" />
-         <button>Add</button>
-       </form>
-     );
-   }
- }
-
- async function graphQLFetch(query, variables = {}) {
-   try {
-     const response = await fetch(window.ENV.UI_API_ENDPOINT, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json'},
-       body: JSON.stringify({ query, variables })
-     });
-     const body = await response.text();
-     const result = JSON.parse(body, jsonDateReviver);
-
-     if (result.errors) {
-       const error = result.errors[0];
-       if (error.extensions.code == 'BAD_USER_INPUT') {
-         const details = error.extensions.exception.errors.join('\n');
-         alert(`${error.message}:\n ${details}`);
-       } else { 
-         alert(`${error.extensions.code}: ${error.message}`);
-       }
-     }
-     return result.data;
-
-   } catch (e) {
-     alert(`Error in sending data to server: ${e.message}`);
-   }
-  }
-
+}
 
 class IssueList extends React.Component {
-   constructor() {
-     super();
-     this.state = { issues: [] };
-     this.createIssue = this.createIssue.bind(this);    
-   }
+  constructor() {
+    super();
+    this.state = { issues: [] };
+    this.createIssue = this.createIssue.bind(this);
+  }
 
-   componentDidMount() {
-     this.loadData();
-   }
+  componentDidMount() {
+    this.loadData();
+  }
 
-   async loadData() {
+  async loadData() {
     const query = `query {
       issueList {
         id title status owner
@@ -134,47 +135,42 @@ class IssueList extends React.Component {
       this.setState({ issues: data.issueList });
     }
   }
-    
-
 
   async createIssue(issue) {
     const query = `mutation issueAdd($issue: IssueInputs!) {
       issueAdd(issue: $issue) {
         id
       }
-    }`;  
+    }`;
 
     const data = await graphQLFetch(query, { issue });
     if (data) {
       this.loadData();
     }
-   }
+  }
 
-   render() {
-     return (
-       <React.Fragment>
-         <h1>Issue Tracker</h1>
-         <IssueFilter />
-         <hr />
-         <IssueTable issues={this.state.issues} />
-         <hr />
-         <IssueAdd createIssue={this.createIssue} />
-       </React.Fragment>
-     );
-   }
- }
+  render() {
+    const { issues } = this.state;
+    return (
+      <React.Fragment>
+        <h1>Issue Tracker</h1>
+        <IssueFilter />
+        <hr />
+        <IssueTable issues={this.state.issues} />
+        <hr />
+        <IssueAdd createIssue={this.createIssue} />
+      </React.Fragment>
+    );
+  }
+}
 
- class BorderWrap extends React.Component {
-   render() {
-     const borderedStyle = {border:"1px solid silver", padding: 6};
-     return (
-       <div style={borderedStyle}>
-         {this.props.children}
-       </div>
-     );
-   }
- }
+class BorderWrap extends React.Component {
+  render() {
+    const borderedStyle = { border: '1px solid silver', padding: 6 };
+    return <div style={borderedStyle}>{this.props.children}</div>;
+  }
+}
 
- const element = <IssueList />;
+const element = <IssueList />;
 
- ReactDOM.render(element, document.getElementById("contents"));
+ReactDOM.render(element, document.getElementById('contents'));
