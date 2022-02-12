@@ -107,4 +107,7 @@ dist
 package-lock.json
 
 # The App.jsx file
-public/App.js
+ui/public/App.js
+
+# .env file
+.env

@@ -17,7 +17,7 @@ class IssueFilter extends React.Component {
   }
 }
 
-function IssueRow({ issue }) {
+function IssueRow({issue}) {
   return (
     <tr>
       <td>{issue.id}</td>
@@ -31,8 +31,8 @@ function IssueRow({ issue }) {
   );
 }
 
-function IssueTable({ issue }) {
-  const issueRows = issues.map((issue) => (
+function IssueTable({issues}) {
+  const issueRows = issues.map(issue => (
     <IssueRow key={issue.id} issue={issue} />
   ));
 
@@ -68,7 +68,7 @@ class IssueAdd extends React.Component {
       title: form.title.value,
       due: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 10),
     };
-    const { createIssue } = this.props;
+    const {createIssue} = this.props;
     createIssue(issue);
     form.owner.value = '';
     form.title.value = '';
@@ -86,15 +86,15 @@ class IssueAdd extends React.Component {
 }
 
 IssueAdd.propTypes = {
-  createIssue: propTypes.func.isRequired,
+  createIssue: PropTypes.func.isRequired,
 };
 
 async function graphQLFetch(query, variables = {}) {
   try {
     const response = await fetch(window.ENV.UI_API_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables }),
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query, variables}),
     });
     const body = await response.text();
     const result = JSON.parse(body, jsonDateReviver);
@@ -118,7 +118,7 @@ async function graphQLFetch(query, variables = {}) {
 class IssueList extends React.Component {
   constructor() {
     super();
-    this.state = { issues: [] };
+    this.state = {issues: []};
     this.createIssue = this.createIssue.bind(this);
   }
 
@@ -136,7 +136,7 @@ class IssueList extends React.Component {
 
     const data = await graphQLFetch(query);
     if (data) {
-      this.setState({ issues: data.issueList });
+      this.setState({issues: data.issueList});
     }
   }
 
@@ -147,14 +147,14 @@ class IssueList extends React.Component {
       }
     }`;
 
-    const data = await graphQLFetch(query, { issue });
+    const data = await graphQLFetch(query, {issue});
     if (data) {
       this.loadData();
     }
   }
 
   render() {
-    const { issues } = this.state;
+    const {issues} = this.state;
     return (
       <React.Fragment>
         <h1>Issue Tracker</h1>
@@ -170,7 +170,7 @@ class IssueList extends React.Component {
 
 class BorderWrap extends React.Component {
   render() {
-    const borderedStyle = { border: '1px solid silver', padding: 6 };
+    const borderedStyle = {border: '1px solid silver', padding: 6};
     return <div style={borderedStyle}>{this.props.children}</div>;
   }
 }
