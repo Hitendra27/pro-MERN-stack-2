@@ -22,7 +22,8 @@ function validate(issue) {
 
 async function add(_, {issue}) {
   const db = getDb();
-  issueValidate(issue);
+  validate(issue);
+
   const newIssue = Object.assign({}, issue);
   newIssue.created = new Date();
   newIssue.id = await getNextSequence('issues');
