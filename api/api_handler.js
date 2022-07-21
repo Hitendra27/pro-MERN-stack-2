@@ -14,8 +14,9 @@ const resolvers = {
     issue: issue.get,
   },
   Mutation: {
-    setAboutMessage: about.settMessage,
+    setAboutMessage: about.setMessage,
     issueAdd: issue.add,
+    issueUpdate: issue.update,
   },
   GraphQLDate,
 };
