@@ -17,6 +17,7 @@ const resolvers = {
     setAboutMessage: about.setMessage,
     issueAdd: issue.add,
     issueUpdate: issue.update,
+    issueDelete: issue.delete,
   },
   GraphQLDate,
 };
@@ -25,7 +26,7 @@ const resolvers = {
 const server = new ApolloServer({
   typeDefs: fs.readFileSync('schema.graphql', 'utf-8'),
   resolvers,
-  formatError: error => {
+  formatError: (error) => {
     console.log(error);
     return error;
   },
