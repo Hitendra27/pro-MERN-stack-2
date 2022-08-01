@@ -34,7 +34,7 @@ input IssueInputs {
 Inputs for issueUpdate: all are Optional. Whichever is specified will
 be set to the given value, undefined fields will remain unmodified.
 """
-input IsssueUpdateInputs {
+input IssueUpdateInputs {
   title: String
   status: StatusType
   owner: String
@@ -53,6 +53,6 @@ type Query {
 type Mutation {
   setAboutMessage(message: String!): String
   issueAdd(issue: IssueInputs!): Issue!
-  issueUpdate(id: Int!, changes: IsssueUpdateInputs!): Issue!
+  issueUpdate(id: Int!, changes: IssueUpdateInputs!): Issue!
   issueDelete(id: Int!): Boolean!
 }

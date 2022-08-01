@@ -60,7 +60,7 @@ export default class IssueEdit extends React.Component {
     const {issue, invalidFields} = this.state;
     if (Object.keys(invalidFields).length !== 0) return;
 
-    const query = `mutaion issueUpdate(
+    const query = `mutation issueUpdate(
       $id: Int!
       $changes: IssueUpdateInputs!
     ){
@@ -73,11 +73,11 @@ export default class IssueEdit extends React.Component {
       }
     }`;
 
-    const { id, created, ...changes } = issue;
-    const data = await graphQLFetch(query, { changes, id });
+    const {id, created, ...changes} = issue;
+    const data = await graphQLFetch(query, {changes, id});
     if (data) {
-      this.setState({ issue: data.issueUpdate });
-      alert('Update issie successfully'); // eslint-disable-line no-alert
+      this.setState({issue: data.issueUpdate});
+      alert('Updated issue successfully'); // eslint-disable-line no-alert
     }
   }
 

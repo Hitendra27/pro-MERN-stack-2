@@ -88,7 +88,7 @@ export default class IssueList extends React.Component {
       }
     }`;
     const {issues} = this.state;
-    const data = await graphQLFetch(query, {id: issue[index].id});
+    const data = await graphQLFetch(query, {id: issues[index].id});
     if (data) {
       this.setState(prevState => {
         const newList = [...prevState.issues];
@@ -114,7 +114,7 @@ export default class IssueList extends React.Component {
     if (data && data.issueDelete) {
       this.setState(prevState => {
         const newList = [...prevState.issues];
-        if (pathname === '/issues/${id}') {
+        if (pathname === `/issues/${id}`) {
           history.push({pathname: '/issues', search});
         }
         newList.splice(index, 1);
