@@ -5,6 +5,7 @@ import {
   NavItem,
   NavDropdown,
   MenuItem,
+  Grid,
   Glyphicon,
   Tooltip,
   OverlayTrigger,
@@ -69,8 +70,10 @@ export default function Page() {
   return (
     <div>
       <NavBar />
-      <Contents />
+      <Grid fluid>
+         <Contents />
+      </Grid>
       <Footer />
-    </div>
+  </div>
   );
 }

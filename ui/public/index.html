@@ -21,18 +21,8 @@
     <script src="https://unpkg.com/whatwg-fetch@3.0.0/dist/fetch.umd.js"></script> -->
 
     <style>
-      table.bordered-table th,
-      td {
-        border: 1px solid silver;
-        padding: 4px;
-      }
-      table.bordered-table {
-        border-collapse: collapse;
-      }
-
-      /* Style for Active NavLinks */
-      a.active {
-        background-color: #d8d8f5;
+      table.table-hover tr {
+        cursor: pointer;
       }
 
       /* Style changes for error message and error inputs */
@@ -41,6 +31,12 @@
       }
       div.error {
         color: red;
+      }
+
+      .panel-title a {
+        display: block;
+        width: 100%;
+        cursor: pointer;
       }
     </style>
   </head>
