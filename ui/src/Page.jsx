@@ -56,6 +56,7 @@ function NavBar() {
 function Footer() {
   return (
     <small>
+      <hr />
       <p className="text-center">
         Full source code available at this{' '}
         <a href="https://github.com/Hitendra27/pro-MERN-stack-2">
@@ -71,9 +72,9 @@ export default function Page() {
     <div>
       <NavBar />
       <Grid fluid>
-         <Contents />
+        <Contents />
       </Grid>
       <Footer />
-  </div>
+    </div>
   );
 }
