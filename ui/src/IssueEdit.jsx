@@ -9,12 +9,14 @@ import {
   ControlLabel,
   ButtonToolbar,
   Button,
+  Alert,
 } from 'react-bootstrap';
 
 import graphQLFetch from './graphQLFetch.js';
 import NumInput from './NumInput.jsx';
 import DateInput from './DateInput.jsx';
 import TextInput from './TextInput.jsx';
+import Toast from './Toast.jsx';
 import {LinkContainer} from 'react-router-bootstrap';
 
 export default class IssueEdit extends React.Component {
@@ -23,10 +25,17 @@ export default class IssueEdit extends React.Component {
     this.state = {
       issue: {},
       invalidFields: {},
+      showingValidation: false,
+      toastVisible: false,
+      toastMessage: '',
+      toastType: 'success',
     };
     this.onChange = this.onChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onValidityChange = this.onValidityChange.bind(this);
+    this.showSuccess = this.showSuccess.bind(this);
+    this.showError = this.showError.bind(this);
+    this.dismissToast = this.dismissToast.bind(this);
   }
 
   componentDidMount() {
@@ -68,6 +77,7 @@ export default class IssueEdit extends React.Component {
 
   async handleSubmit(e) {
     e.preventDefault();
+    this.showingValidation();
     const {issue, invalidFields} = this.state;
     if (Object.keys(invalidFields).length !== 0) return;
 
@@ -85,10 +95,10 @@ export default class IssueEdit extends React.Component {
     }`;
 
     const {id, created, ...changes} = issue;
-    const data = await graphQLFetch(query, {changes, id});
+    const data = await graphQLFetch(query, {changes, id}, this.showError);
     if (data) {
       this.setState({issue: data.issueUpdate});
-      alert('Updated issue successfully'); // eslint-disable-line no-alert
+      this.showError('Updated issue successfully');
     }
   }
 
@@ -105,8 +115,33 @@ export default class IssueEdit extends React.Component {
         params: {id},
       },
     } = this.props;
-    const data = await graphQLFetch(query, {id});
+    const data = await graphQLFetch(query, {id}, this.showError);
     this.setState({issue: data ? data.issue : {}, invalidFields: {}});
+  }
+
+  showingValidation(){
+    this.setState({showingValidation: true});
+  }
+
+  dismissValidation(){
+    this.setState({showingValidation: false});
+  }
+
+  showSuccess(message) {
+    this.setState({
+      toastVisible: true, toastMessage: message, toastType: 'success',
+    });
+  }
+
+  showError(message) {
+    this.setState({
+      toastVisible: true, toastMessage: message, toastType: 'danger',
+    });
+  }
+
+  dismissToast(){
+    this.setState({ toastVisible: false
+    });
   }
 
   render() {
@@ -125,13 +160,13 @@ export default class IssueEdit extends React.Component {
       return null;
     }
 
-    const {invalidFields} = this.state;
+    const {invalidFields, showingValidation} = this.state;
     let validationMessage;
-    if (Object.keys(invalidFields).length !== 0) {
+    if (Object.keys(invalidFields).length !== 0 && showingValidation) {
       validationMessage = (
-        <div className="error">
+        <Alert bsStyle='danger' onDismiss={this.dismissValidation}>
           Please correct invalid fields before submitting.
-        </div>
+        </Alert>
       );
     }
 
@@ -144,6 +179,7 @@ export default class IssueEdit extends React.Component {
     const {
       issue: {created, due},
     } = this.state;
+    const { toastVisible, toastMessage, toastType} = this.state;
 
     return (
       <Panel>
@@ -252,14 +288,23 @@ export default class IssueEdit extends React.Component {
                 </ButtonToolbar>
               </Col>
             </FormGroup>
+            <FormGroup>
+              <Col smOffset={3} sm={9}>{validationMessage}</Col>
+            </FormGroup>
           </Form>
-          {validationMessage}
         </Panel.Body>
         <Panel.Footer>
           <Link to={`/edit/${id - 1}`}>Prev</Link>
           {' | '}
           <Link to={`/edit/${id + 1}`}>Next</Link>
         </Panel.Footer>
+        <Toast
+        showing={toastVisible}
+        onDismiss={this.dismissToast}
+        bsStyle={toastType}
+        >
+          {toastMessage}
+        </Toast>
       </Panel>
     );
   }
